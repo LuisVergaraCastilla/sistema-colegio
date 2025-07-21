@@ -1,0 +1,111 @@
+body {
+    background-color: #fff;
+    color: #2C3E50;
+    overflow-y: hidden;
+}
+
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+.login-container {
+    display: flex;
+}
+
+.login-img {
+    width: 50%;
+}
+
+.img {
+    height: 100dvh;
+    width: 100dvh;
+    object-fit: contain;
+    border: solid 1px #000;
+}
+
+.content-container {
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+    margin: auto;
+    width: 550px;
+    
+}
+
+.title {
+    font-size: 1.7rem;
+    font-weight: bold;
+}
+
+.sub-title {
+    font-size: 1.7rem;
+    font-weight: bold;
+    color: #6C8FA1;
+}
+
+.title-content {
+    margin-bottom: 40px;
+}
+
+.form {
+    display: flex;   
+    flex-direction: column;
+}
+
+.section-form {
+    display: flex;
+    flex-direction: column;
+    padding: 10px 0px;
+}
+
+.title-form {
+    color: #2C3E50;
+    font-size: 1.3rem;
+    font-weight: 500;
+}
+
+.title-form-second {
+    color :#6C8FA1;
+}
+
+.label-form {
+    color: #2C3E50;
+    font-size: 1.1rem;
+    font-weight: 500;
+    padding-bottom: 5px;
+}
+
+.input-form {
+    padding: 8px;
+    border-radius: 6px;
+    border: 1px solid #2C3E50;
+    width: 90%;
+}
+
+.input-form:focus {
+    outline: none;
+}
+
+.text-info {
+    padding-top: 8px;
+    color: #2C3E50;
+
+}
+
+.btn-login {
+    margin-top: 15px;
+    padding: 12px;
+    background-color: #4FA3A5;
+    color: #fff;
+    border-radius: 8px;
+    cursor: pointer;
+    width: 90%;
+    border: none;
+    transition: background-color 0.3s ease;
+}
+
+.btn-login:hover {
+    background-color: #3b8788;
+}
