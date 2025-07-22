@@ -26,6 +26,27 @@ function limpiarCamposCrear() {
     document.getElementById('rolCrear').value = 'ADMIN';
 }
 
+// ✅ Nueva función central para cargar ambos listados
+function cargarUsuarios() {
+    const tablaUsuarios = document.getElementById('tablaUsuarios');
+    const tablaAsignaciones = document.getElementById('tablaAsignaciones');
+
+    tablaUsuarios.innerHTML = '';
+    tablaAsignaciones.innerHTML = '';
+
+    fetch('/api/usuarios')
+        .then(response => response.json())
+        .then(usuarios => {
+            usuarios.forEach(usuario => {
+                agregarFilaUsuario(usuario);
+                if (usuario.rol === 'PROFESOR' || usuario.rol === 'ALUMNO') {
+                    agregarFilaAsignacion(usuario);
+                }
+            });
+        })
+        .catch(error => console.error('Error al cargar usuarios:', error));
+}
+
 function crearUsuario() {
     const dni = document.getElementById('dniCrear').value;
     const nombre = document.getElementById('nombreCrear').value;
@@ -48,15 +69,13 @@ function crearUsuario() {
         body: JSON.stringify(usuario)
     })
     .then(response => {
-        if (!response.ok) {
-            throw new Error('Error al guardar usuario');
-        }
+        if (!response.ok) throw new Error('Error al guardar usuario');
         return response.json();
     })
     .then(data => {
-        agregarFilaUsuario(data);
         cerrarModal('modalCrear');
         limpiarCamposCrear();
+        cargarUsuarios(); // 🔄 Recargar todas las tablas sin duplicar
     })
     .catch(error => {
         alert("Error al crear usuario: " + error.message);
@@ -79,26 +98,13 @@ function agregarFilaUsuario(usuario) {
     tabla.appendChild(fila);
 }
 
-window.addEventListener('DOMContentLoaded', () => {
-    fetch('/api/usuarios')
-        .then(response => response.json())
-        .then(usuarios => {
-            usuarios.forEach(usuario => agregarFilaUsuario(usuario));
-        })
-        .catch(error => console.error('Error al cargar usuarios:', error));
-});
-
 function actualizarUsuario() {
     const id = document.getElementById('editarId').value;
     const dni = document.getElementById('editarDni').value;
     const nombre = document.getElementById('editarNombre').value;
     const rol = document.getElementById('editarRol').value;
 
-    const usuario = {
-        dni,
-        nombre,
-        rol
-    };
+    const usuario = { dni, nombre, rol };
 
     fetch(`/api/usuarios/${id}`, {
         method: 'PUT',
@@ -108,13 +114,11 @@ function actualizarUsuario() {
         body: JSON.stringify(usuario)
     })
     .then(response => {
-        if (!response.ok) {
-            throw new Error('Error al actualizar usuario');
-        }
+        if (!response.ok) throw new Error('Error al actualizar usuario');
         return response.json();
     })
-    .then(data => {
-        location.reload(); // para que la tabla se actualice
+    .then(() => {
+        location.reload(); // Puedes reemplazar por cargarUsuarios() si no quieres recargar toda la página
     })
     .catch(error => {
         alert("Error al actualizar usuario: " + error.message);
@@ -127,17 +131,8 @@ function confirmarEliminar() {
         method: 'DELETE'
     })
     .then(response => {
-        if (!response.ok) {
-            throw new Error('Error al eliminar usuario');
-        }
-        // Quitar la fila de la tabla
-        const tabla = document.getElementById('tablaUsuarios');
-        const filas = tabla.querySelectorAll('tr');
-        filas.forEach(fila => {
-            if (fila.innerHTML.includes(`abrirModalEditar(${usuarioAEliminar},`)) {
-                fila.remove();
-            }
-        });
+        if (!response.ok) throw new Error('Error al eliminar usuario');
+        cargarUsuarios(); // 🔄 Volver a cargar tablas para que refleje el cambio
         cerrarModal('modalEliminar');
     })
     .catch(error => {
@@ -145,3 +140,37 @@ function confirmarEliminar() {
         console.error(error);
     });
 }
+
+function agregarFilaAsignacion(usuario) {
+    const tabla = document.getElementById('tablaAsignaciones');
+    const fila = document.createElement('tr');
+    fila.innerHTML = `
+        <td>${usuario.dni}</td>
+        <td>${usuario.nombre}</td>
+        <td>${usuario.rol}</td>
+        <td>
+            <button class="btn" onclick="abrirModalAsignar(${usuario.id}, '${usuario.nombre}', '${usuario.rol}')">Asignar</button>
+        </td>
+    `;
+    tabla.appendChild(fila);
+}
+
+function abrirModalAsignar(id, nombre, rol) {
+    document.getElementById('asignarId').value = id;
+    document.getElementById('asignarNombre').textContent = nombre;
+    document.getElementById('asignarRol').textContent = rol;
+    document.getElementById('modalAsignar').style.display = 'block';
+}
+
+function guardarAsignacion() {
+    const id = document.getElementById('asignarId').value;
+    const grado = document.getElementById('grado').value;
+    const seccion = document.getElementById('seccion').value;
+    const curso = document.getElementById('curso').value;
+
+    alert(`Asignación guardada (simulada):\nID: ${id}\nGrado: ${grado}\nSección: ${seccion}\nCurso: ${curso}`);
+    cerrarModal('modalAsignar');
+}
+
+// ✅ Cargar usuarios y asignaciones al iniciar
+window.addEventListener('DOMContentLoaded', cargarUsuarios);
