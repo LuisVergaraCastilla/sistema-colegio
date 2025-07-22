@@ -55,8 +55,10 @@ public class UsuarioServiceImpl implements UsuarioService, UserDetailsService {
         );
     }
 
+
     @Override
-    public Optional<Usuario> buscarUsuarioPorId(Long id) {
-        return usuarioRepository.findById(id);
+    public Usuario obtenerPorId(Long id) {
+        return usuarioRepository.findById(id).orElse(null);
     }
 }
+
