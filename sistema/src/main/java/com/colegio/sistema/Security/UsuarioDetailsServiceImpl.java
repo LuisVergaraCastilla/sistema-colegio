@@ -3,6 +3,7 @@ package com.colegio.sistema.Security;
 import com.colegio.sistema.Entity.Usuario;
 import com.colegio.sistema.Repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
 import org.springframework.security.core.userdetails.*;
 import org.springframework.stereotype.Service;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -10,6 +11,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import java.util.Collections;
 
 @Service
+@Primary
 public class UsuarioDetailsServiceImpl implements UserDetailsService {
 
     @Autowired

@@ -3,13 +3,149 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inicio Profesor</title>
-    <link rel="stylesheet" href="/css/estilos.css">
+    <title>Profesor - Sistema Escolar</title>
+    <link rel="stylesheet" href="/css/usuarios.css"> 
 </head>
-<body>
-    <div style="text-align: center; margin-top: 50px;">
-        <h1 th:text="'Bienvenido ' + ${usuario.rol} + ' ' + ${usuario.nombre}">Bienvenido</h1>
-        <p>Has iniciado sesión correctamente como profesor.</p>
+<body class="body-profesor">
+    <div class="navbar">
+        <img src="/img/img-login.png" alt="Logo Colegio">
+        <h1 class="navbar-title">Bienvenido Profesor</h1>
+        <a href="/logout" class="btn logout-btn">Cerrar Sesión</a>
     </div>
+
+    <!-- datos personales del profesor -->
+    <div class="profesor-datos">
+        <h2>Datos Personales</h2>
+        <div class="info-grid">
+            <p><strong>Nombre:</strong> <span th:text="${usuarioActual.nombre}">[Nombre Completo del Profesor]</span></p>
+            <p><strong>DNI:</strong> <span th:text="${usuarioActual.dni}">[DNI del Profesor]</span></p>
+            <p><strong>Grado que enseña:</strong> <span th:text="${profesorData.grado}">[Grado Asignado]</span></p>
+            <p><strong>Sección:</strong> <span th:text="${profesorData.seccion}">[Sección Asignada]</span></p>
+        </div>
+
+        <h3>Cursos que dicta</h3>
+        <table class="tabla-profesor-cursos">
+            <thead>
+                <tr>
+                    <th>Nombre del Curso</th>
+                    <th>Grado</th>
+                    <th>Sección</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="curso : ${profesorData.cursos}">
+                    <td th:text="${curso.nombre}">[Nombre del Curso]</td>
+                    <td th:text="${curso.grado}">[Grado del Curso]</td>
+                    <td th:text="${curso.seccion}">[Sección del Curso]</td>
+                </tr>
+                <tr th:if="${profesorData.cursos == null or #lists.isEmpty(profesorData.cursos)}">
+                    <td colspan="3">No hay cursos asignados.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Gestión de notas por curso-->
+    <div class="notas-cursos">
+        <h2>Gestión de Notas - Curso: <span th:text="${cursoMedioambiente.nombre}">Medioambiente</span></h2>
+        <p class="course-details">
+            <strong>Grado:</strong> <span th:text="${cursoMedioambiente.grado}">[Grado del Curso]</span> | 
+            <strong>Sección:</strong> <span th:text="${cursoMedioambiente.seccion}">[Sección del Curso]</span>
+        </p>
+
+        <table class="students-grades-table">
+            <thead>
+                <tr>
+                    <th>DNI Alumno</th>
+                    <th>Nombre Alumno</th>
+                    <th>Nota</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="tablaAlumnosMedioambiente">
+                <tr th:each="alumno : ${cursoMedioambiente.alumnos}">
+                    <td th:text="${alumno.dni}">[DNI Alumno]</td>
+                    <td th:text="${alumno.nombre}">[Nombre Alumno]</td>
+                    <td th:text="${alumno.nota}" th:id="'nota-' + ${alumno.id}">[Nota]</td>
+                    <td>
+                        <button class="btn-action edit-grade-btn" 
+                                onclick="abrirModalEditarNota(this)"
+                                th:data-alumno-id="${alumno.id}"
+                                th:data-alumno-dni="${alumno.dni}"
+                                th:data-alumno-nombre="${alumno.nombre}"
+                                th:data-alumno-nota="${alumno.nota}">
+                            Editar Nota
+                        </button>
+                    </td>
+                </tr>
+                <tr th:if="${cursoMedioambiente.alumnos == null or #lists.isEmpty(cursoMedioambiente.alumnos)}">
+                    <td colspan="4">No hay alumnos asignados a este curso.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <!-- Modal para editar nota del elumno -->
+    <div class="modal" id="modalEditarNota">
+        <div class="modal-content">
+            <span class="close-modal" onclick="cerrarModal('modalEditarNota')">&times;</span>
+            <h3>Editar Nota</h3>
+            <input type="hidden" id="editarNotaAlumnoId">
+            <p class="modal-alumno-info"><strong>Alumno:</strong> <span id="editarNotaAlumnoNombre"></span> (<span id="editarNotaAlumnoDni"></span>)</p>
+            <label for="nuevaNota">Nueva Nota:</label>
+            <input type="number" id="nuevaNota" min="0" max="20" step="0.5" placeholder="Ingrese la nueva nota (0-20)">
+            <div class="modal-actions">
+                <button class="btn-action save-grade-btn" onclick="guardarNuevaNota()">Guardar Nota</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script para la lógica de los modales y la actualización de notas -->
+    <script>
+        // Referencias a elementos del DOM para el modal de edición de nota
+        const modalEditarNota = document.getElementById('modalEditarNota');
+        const editarNotaAlumnoIdInput = document.getElementById('editarNotaAlumnoId');
+        const editarNotaAlumnoNombreSpan = document.getElementById('editarNotaAlumnoNombre');
+        const editarNotaAlumnoDniSpan = document.getElementById('editarNotaAlumnoDni');
+        const nuevaNotaInput = document.getElementById('nuevaNota');
+
+        /*Abre el modal para editar la nota de un alumno*/
+        function abrirModalEditarNota(buttonElement) {
+            const id = buttonElement.dataset.alumnoId;
+            const dni = buttonElement.dataset.alumnoDni;
+            const nombre = buttonElement.dataset.alumnoNombre;
+            const notaActual = buttonElement.dataset.alumnoNota;
+
+            editarNotaAlumnoIdInput.value = id;
+            editarNotaAlumnoNombreSpan.textContent = nombre;
+            editarNotaAlumnoDniSpan.textContent = dni;
+            nuevaNotaInput.value = notaActual;
+            modalEditarNota.style.display = 'block';
+        }
+        /*Cierra el modal de edición de nota*/
+        function cerrarModal(idModal) {
+            document.getElementById(idModal).style.display = 'none';
+        }
+
+        /*Guarda la nueva nota del alumno*/
+        function guardarNuevaNota() {
+            const alumnoId = editarNotaAlumnoIdInput.value;
+            const nuevaNota = parseFloat(nuevaNotaInput.value);
+
+            if (isNaN(nuevaNota) || nuevaNota < 0 || nuevaNota > 20) {
+                console.warn('Por favor, ingrese una nota válida entre 0 y 20.');
+                return;
+            }
+
+            // SIMULACIÓN (eliminar cuando implementes el backend real)
+            console.log(`Simulando: Nota del alumno ID ${alumnoId} actualizada a ${nuevaNota}.`);
+            const notaElement = document.getElementById('nota-' + alumnoId);
+            if (notaElement) {
+                notaElement.textContent = nuevaNota;
+            } else {
+                console.error(`Elemento con ID 'nota-${alumnoId}' no encontrado.`);
+            }
+            cerrarModal('modalEditarNota');
+        }
+    </script>
 </body>
 </html>
