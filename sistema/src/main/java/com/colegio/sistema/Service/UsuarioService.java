@@ -14,4 +14,6 @@ public interface UsuarioService {
     void eliminarUsuario(Long id);
 
     Optional<Usuario> obtenerUsuarioPorDni(String dni);
+
+    Optional<Usuario> buscarUsuarioPorId(Long id); // ← nuevo método
 }
