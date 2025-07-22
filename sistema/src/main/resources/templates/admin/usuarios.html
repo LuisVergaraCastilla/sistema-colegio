@@ -1,7 +1,87 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head><title>Admin</title></head>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin</title>
+    <link rel="stylesheet" href="/css/usuarios.css">
+</head>
 <body>
     <h1>Bienvenido Admin</h1>
+    <div class="navbar">
+        <img src="/img/logo.png" alt="Logo Colegio">
+    </div>
+
+    <div class="container">
+        <div class="top-bar">
+            <h2>Lista de Usuarios</h2>
+            <button class="btn" onclick="abrirModalCrear()">Crear un usuario</button>
+        </div>
+
+        <table>
+            <thead>
+            <tr>
+                <th>DNI</th>
+                <th>Nombre</th>
+                <th>Rol</th>
+                <th>Acciones</th>
+            </tr>
+            </thead>
+            <tbody id="tablaUsuarios">
+                <!-- Usuarios se insertarán dinámicamente -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Modal Crear Usuario -->
+    <div class="modal" id="modalCrear">
+        <div class="modal-content">
+            <span class="close" onclick="cerrarModal('modalCrear')">&times;</span>
+            <h3>Crear Usuario</h3>
+            <input type="text" id="dniCrear" placeholder="DNI">
+            <input type="text" id="nombreCrear" placeholder="Nombre">
+            <select id="rolCrear">
+                <option value="ADMIN">ADMIN</option>
+                <option value="PROFESOR">PROFESOR</option>
+                <option value="ALUMNO">ALUMNO</option>
+            </select>
+            <input type="password" id="contrasenaCrear" placeholder="Contraseña">
+            <div class="modal-actions">
+                <button class="btn" onclick="crearUsuario()">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Editar Usuario -->
+    <div class="modal" id="modalEditar">
+        <div class="modal-content">
+            <span class="close" onclick="cerrarModal('modalEditar')">&times;</span>
+            <h3>Editar Usuario</h3>
+            <input type="hidden" id="editarId">
+            <input type="text" id="editarDni" placeholder="DNI">
+            <input type="text" id="editarNombre" placeholder="Nombre">
+            <select id="editarRol">
+                <option value="ADMIN">ADMIN</option>
+                <option value="PROFESOR">PROFESOR</option>
+                <option value="ALUMNO">ALUMNO</option>
+            </select>
+            <div class="modal-actions">
+                <button class="btn" onclick="actualizarUsuario()">Actualizar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Eliminar Usuario -->
+    <div class="modal" id="modalEliminar">
+        <div class="modal-content">
+            <span class="close" onclick="cerrarModal('modalEliminar')">&times;</span>
+            <h3>¿Estás seguro de eliminar a este usuario?</h3>
+            <div class="modal-actions">
+                <button class="btn" onclick="confirmarEliminar()">Sí, eliminar</button>
+                <button class="btn" onclick="cerrarModal('modalEliminar')">Cancelar</button>
+            </div>
+        </div>
+    </div>
+    <script src="/js/usuarios.js"></script>
 </body>
 </html>
