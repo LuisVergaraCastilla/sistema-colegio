@@ -32,3 +32,4 @@ public class Usuario {
     // Opcional: Estado del usuario
     private boolean activo = true;
 }
+

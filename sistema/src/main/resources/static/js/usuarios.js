@@ -27,21 +27,16 @@ function limpiarCamposCrear() {
 }
 
 function crearUsuario() {
-    const dni = document.getElementById('dniCrear').value.trim();
-    const nombre = document.getElementById('nombreCrear').value.trim();
-    const contrasena = document.getElementById('contrasenaCrear').value.trim();
+    const dni = document.getElementById('dniCrear').value;
+    const nombre = document.getElementById('nombreCrear').value;
+    const contrasena = document.getElementById('contrasenaCrear').value;
     const rol = document.getElementById('rolCrear').value;
 
-    if (!dni || !nombre || !contrasena || !rol) {
-        alert("Por favor completa todos los campos.");
-        return;
-    }
-
-    const nuevoUsuario = {
-        dni: dni,
-        nombre: nombre,
-        contrasena: contrasena,
-        rol: rol,
+    const usuario = {
+        dni,
+        nombre,
+        contrasena,
+        rol,
         activo: true
     };
 
@@ -50,29 +45,28 @@ function crearUsuario() {
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify(nuevoUsuario)
+        body: JSON.stringify(usuario)
     })
-    .then(res => {
-        if (!res.ok) {
-            throw new Error("Error al crear usuario");
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Error al guardar usuario');
         }
-        return res.json();
+        return response.json();
     })
-    .then(usuario => {
-        agregarUsuarioATabla(usuario);
+    .then(data => {
+        agregarFilaUsuario(data);
         cerrarModal('modalCrear');
         limpiarCamposCrear();
     })
     .catch(error => {
-        console.error("Hubo un error al crear el usuario:", error);
-        alert("Hubo un error al crear el usuario.");
+        alert("Error al crear usuario: " + error.message);
+        console.error(error);
     });
 }
 
-function agregarUsuarioATabla(usuario) {
+function agregarFilaUsuario(usuario) {
     const tabla = document.getElementById('tablaUsuarios');
     const fila = document.createElement('tr');
-
     fila.innerHTML = `
         <td>${usuario.dni}</td>
         <td>${usuario.nombre}</td>
@@ -82,25 +76,28 @@ function agregarUsuarioATabla(usuario) {
             <button class="btn" onclick="abrirModalEliminar(${usuario.id})">Eliminar</button>
         </td>
     `;
-
     tabla.appendChild(fila);
 }
 
+window.addEventListener('DOMContentLoaded', () => {
+    fetch('/api/usuarios')
+        .then(response => response.json())
+        .then(usuarios => {
+            usuarios.forEach(usuario => agregarFilaUsuario(usuario));
+        })
+        .catch(error => console.error('Error al cargar usuarios:', error));
+});
+
 function actualizarUsuario() {
     const id = document.getElementById('editarId').value;
-    const dni = document.getElementById('editarDni').value.trim();
-    const nombre = document.getElementById('editarNombre').value.trim();
+    const dni = document.getElementById('editarDni').value;
+    const nombre = document.getElementById('editarNombre').value;
     const rol = document.getElementById('editarRol').value;
 
-    if (!dni || !nombre || !rol) {
-        alert("Por favor completa todos los campos.");
-        return;
-    }
-
-    const usuarioEditado = {
-        dni: dni,
-        nombre: nombre,
-        rol: rol
+    const usuario = {
+        dni,
+        nombre,
+        rol
     };
 
     fetch(`/api/usuarios/${id}`, {
@@ -108,103 +105,43 @@ function actualizarUsuario() {
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify(usuarioEditado)
+        body: JSON.stringify(usuario)
     })
-    .then(res => {
-        if (!res.ok) {
-            throw new Error("Error al actualizar el usuario");
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Error al actualizar usuario');
         }
-        return res.json();
+        return response.json();
     })
-    .then(usuario => {
-        actualizarFilaEnTabla(usuario);
-        cerrarModal('modalEditar');
+    .then(data => {
+        location.reload(); // para que la tabla se actualice
     })
     .catch(error => {
-        console.error("Hubo un error al actualizar el usuario:", error);
-        alert("Hubo un error al actualizar el usuario.");
+        alert("Error al actualizar usuario: " + error.message);
+        console.error(error);
     });
-}
-
-function actualizarFilaEnTabla(usuario) {
-    const filas = document.querySelectorAll("#tablaUsuarios tr");
-    filas.forEach(fila => {
-        const botonEditar = fila.querySelector("button[onclick^='abrirModalEditar']");
-        if (botonEditar && botonEditar.outerHTML.includes(`abrirModalEditar(${usuario.id}`)) {
-            fila.innerHTML = `
-                <td>${usuario.dni}</td>
-                <td>${usuario.nombre}</td>
-                <td>${usuario.rol}</td>
-                <td>
-                    <button class="btn" onclick="abrirModalEditar(${usuario.id}, '${usuario.dni}', '${usuario.nombre}', '${usuario.rol}')">Editar</button>
-                    <button class="btn" onclick="abrirModalEliminar(${usuario.id})">Eliminar</button>
-                </td>
-            `;
-        }
-    });
-}
-
-document.addEventListener("DOMContentLoaded", function () {
-    cargarUsuarios();
-});
-
-function cargarUsuarios() {
-    fetch("/api/usuarios")
-        .then(response => {
-            if (!response.ok) throw new Error("Error al obtener los usuarios");
-            return response.json();
-        })
-        .then(data => {
-            const tabla = document.getElementById('tablaUsuarios');
-            tabla.innerHTML = ""; // limpiar la tabla
-
-            data.forEach(usuario => {
-                const fila = document.createElement('tr');
-                fila.innerHTML = `
-                    <td>${usuario.dni}</td>
-                    <td>${usuario.nombre}</td>
-                    <td>${usuario.rol}</td>
-                    <td>
-                        <button class="btn" onclick="abrirModalEditar(${usuario.id}, '${usuario.dni}', '${usuario.nombre}', '${usuario.rol}')">Editar</button>
-                        <button class="btn" onclick="abrirModalEliminar(${usuario.id})">Eliminar</button>
-                    </td>
-                `;
-                tabla.appendChild(fila);
-            });
-        })
-        .catch(error => {
-            console.error("Error al cargar usuarios:", error);
-            alert("Hubo un error al cargar los usuarios.");
-        });
 }
 
 function confirmarEliminar() {
-    const id = window.usuarioAEliminar;
-    if (!id) return;
-
-    fetch(`/api/usuarios/${id}`, {
+    fetch(`/api/usuarios/${usuarioAEliminar}`, {
         method: 'DELETE'
     })
-    .then(res => {
-        if (!res.ok) {
-            throw new Error("Error al eliminar el usuario");
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Error al eliminar usuario');
         }
-        eliminarFilaDeTabla(id);
+        // Quitar la fila de la tabla
+        const tabla = document.getElementById('tablaUsuarios');
+        const filas = tabla.querySelectorAll('tr');
+        filas.forEach(fila => {
+            if (fila.innerHTML.includes(`abrirModalEditar(${usuarioAEliminar},`)) {
+                fila.remove();
+            }
+        });
         cerrarModal('modalEliminar');
     })
     .catch(error => {
-        console.error("Hubo un error al eliminar el usuario:", error);
-        alert("Hubo un error al eliminar el usuario.");
-    });
-}
-
-function eliminarFilaDeTabla(id) {
-    const filas = document.querySelectorAll("#tablaUsuarios tr");
-    filas.forEach(fila => {
-        const botonEliminar = fila.querySelector("button[onclick^='abrirModalEliminar']");
-
-        if (botonEliminar && botonEliminar.outerHTML.includes(`abrirModalEliminar(${id}`)) {
-            fila.remove();
-        }
+        alert("Error al eliminar usuario: " + error.message);
+        console.error(error);
     });
 }

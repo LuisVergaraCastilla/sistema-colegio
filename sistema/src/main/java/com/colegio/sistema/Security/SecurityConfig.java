@@ -22,26 +22,25 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .csrf().disable()
-        .authorizeHttpRequests(auth -> auth
-            .requestMatchers("/login", "/css/**", "/js/**").permitAll()
-            .requestMatchers("/api/usuarios").permitAll()
-            .requestMatchers("/admin/**").hasRole("ADMIN")
-            .requestMatchers("/profesor/**").hasRole("PROFESOR")
-            .requestMatchers("/alumno/**").hasRole("ALUMNO")
-            .anyRequest().authenticated()
-        )
-        .formLogin(login -> login
-            .loginPage("/login")
-            .loginProcessingUrl("/login")
-            .defaultSuccessUrl("/redirigir-por-rol", true)
-            .permitAll()
-        )
-        .logout(logout -> logout
-            .logoutSuccessUrl("/login?logout")
-            .permitAll()
-        );
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/login", "/css/**", "/js/**", "/api/usuarios").permitAll()
+                .requestMatchers("/admin/**").hasRole("ADMIN")
+                .requestMatchers("/profesor/**").hasRole("PROFESOR")
+                .requestMatchers("/alumno/**").hasRole("ALUMNO")
+                .anyRequest().authenticated()
+            )
+            .formLogin(login -> login
+                .loginPage("/login")
+                .loginProcessingUrl("/login") // importante: Spring maneja automáticamente esta URL
+                .defaultSuccessUrl("/redirigir-por-rol", true)
+                .permitAll()
+            )
+            .logout(logout -> logout
+                .logoutSuccessUrl("/login?logout")
+                .permitAll()
+            );
 
-    return http.build();
+        return http.build();
     }
 
     @Bean
@@ -57,3 +56,4 @@ public class SecurityConfig {
         return auth;
     }
 }
+

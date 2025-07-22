@@ -15,5 +15,7 @@ public interface UsuarioService {
 
     Optional<Usuario> obtenerUsuarioPorDni(String dni);
 
-    Optional<Usuario> buscarUsuarioPorId(Long id); // ← nuevo método
+    Usuario obtenerPorId(Long id);
+
 }
+
