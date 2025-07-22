@@ -26,7 +26,6 @@ function limpiarCamposCrear() {
     document.getElementById('rolCrear').value = 'ADMIN';
 }
 
-// ✅ Nueva función central para cargar ambos listados
 function cargarUsuarios() {
     const tablaUsuarios = document.getElementById('tablaUsuarios');
     const tablaAsignaciones = document.getElementById('tablaAsignaciones');
@@ -75,7 +74,7 @@ function crearUsuario() {
     .then(data => {
         cerrarModal('modalCrear');
         limpiarCamposCrear();
-        cargarUsuarios(); // 🔄 Recargar todas las tablas sin duplicar
+        cargarUsuarios();
     })
     .catch(error => {
         alert("Error al crear usuario: " + error.message);
@@ -118,7 +117,7 @@ function actualizarUsuario() {
         return response.json();
     })
     .then(() => {
-        location.reload(); // Puedes reemplazar por cargarUsuarios() si no quieres recargar toda la página
+        location.reload();
     })
     .catch(error => {
         alert("Error al actualizar usuario: " + error.message);
@@ -132,7 +131,7 @@ function confirmarEliminar() {
     })
     .then(response => {
         if (!response.ok) throw new Error('Error al eliminar usuario');
-        cargarUsuarios(); // 🔄 Volver a cargar tablas para que refleje el cambio
+        cargarUsuarios();
         cerrarModal('modalEliminar');
     })
     .catch(error => {
@@ -155,11 +154,38 @@ function agregarFilaAsignacion(usuario) {
     tabla.appendChild(fila);
 }
 
+// ✅ Nuevo: llenar selects dinámicamente desde el backend
 function abrirModalAsignar(id, nombre, rol) {
     document.getElementById('asignarId').value = id;
     document.getElementById('asignarNombre').textContent = nombre;
     document.getElementById('asignarRol').textContent = rol;
+
+    cargarSelect('/api/grados', 'grado');
+    cargarSelect('/api/secciones', 'seccion');
+    cargarSelect('/api/cursos', 'curso');
+
     document.getElementById('modalAsignar').style.display = 'block';
+}
+
+function cargarSelect(url, idSelect) {
+    const select = document.getElementById(idSelect);
+    select.innerHTML = '<option value="">Cargando...</option>';
+
+    fetch(url)
+        .then(response => response.json())
+        .then(data => {
+            select.innerHTML = '';
+            data.forEach(item => {
+                const option = document.createElement('option');
+                option.value = item.id;
+                option.textContent = item.nombre;
+                select.appendChild(option);
+            });
+        })
+        .catch(error => {
+            console.error(`Error al cargar ${idSelect}:`, error);
+            select.innerHTML = `<option value="">Error</option>`;
+        });
 }
 
 function guardarAsignacion() {
@@ -172,5 +198,5 @@ function guardarAsignacion() {
     cerrarModal('modalAsignar');
 }
 
-// ✅ Cargar usuarios y asignaciones al iniciar
+// ✅ Al cargar la página, se llenan las tablas
 window.addEventListener('DOMContentLoaded', cargarUsuarios);
