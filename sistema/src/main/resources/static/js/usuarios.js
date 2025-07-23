@@ -189,13 +189,44 @@ function cargarSelect(url, idSelect) {
 }
 
 function guardarAsignacion() {
-    const id = document.getElementById('asignarId').value;
-    const grado = document.getElementById('grado').value;
-    const seccion = document.getElementById('seccion').value;
-    const curso = document.getElementById('curso').value;
+    const usuarioId = document.getElementById('asignarId').value;
+    const gradoId = document.getElementById('grado').value;
+    const seccionId = document.getElementById('seccion').value;
+    const cursoId = document.getElementById('curso').value;
 
-    alert(`Asignación guardada (simulada):\nID: ${id}\nGrado: ${grado}\nSección: ${seccion}\nCurso: ${curso}`);
-    cerrarModal('modalAsignar');
+    // Validación simple
+    if (!gradoId || !seccionId || !cursoId) {
+        alert('Debe seleccionar grado, sección y curso');
+        return;
+    }
+
+    const asignacion = {
+        profesor: { id: usuarioId },
+        grado: { id: gradoId },
+        seccion: { id: seccionId },
+        curso: { id: cursoId }
+    };
+
+    fetch('/asignaciones', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(asignacion)
+    })
+    .then(response => {
+        if (!response.ok) throw new Error('Error al guardar la asignación');
+        return response.json();
+    })
+    .then(data => {
+        cerrarModal('modalAsignar');
+        alert('Asignación guardada correctamente');
+        // Si deseas actualizar la tabla de asignaciones, podrías hacerlo aquí
+    })
+    .catch(error => {
+        alert("Error al guardar asignación: " + error.message);
+        console.error(error);
+    });
 }
 
 // ✅ Al cargar la página, se llenan las tablas

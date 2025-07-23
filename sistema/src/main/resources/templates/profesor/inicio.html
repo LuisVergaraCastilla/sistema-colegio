@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profesor - Sistema Escolar</title>
-    <link rel="stylesheet" href="/css/usuarios.css"> 
+    <link rel="stylesheet" href="/css/usuarios.css">
 </head>
 <body class="body-profesor">
     <div class="navbar">
@@ -13,139 +13,123 @@
         <a href="/logout" class="btn logout-btn">Cerrar Sesión</a>
     </div>
 
-    <!-- datos personales del profesor -->
-    <div class="profesor-datos">
+    <!-- Datos del profesor -->
+    <section class="profesor-datos">
         <h2>Datos Personales</h2>
         <div class="info-grid">
-            <p><strong>Nombre:</strong> <span th:text="${usuarioActual.nombre}">[Nombre Completo del Profesor]</span></p>
-            <p><strong>DNI:</strong> <span th:text="${usuarioActual.dni}">[DNI del Profesor]</span></p>
-            <p><strong>Grado que enseña:</strong> <span th:text="${profesorData.grado}">[Grado Asignado]</span></p>
-            <p><strong>Sección:</strong> <span th:text="${profesorData.seccion}">[Sección Asignada]</span></p>
+            <p><strong>Nombre:</strong> <span th:text="${profesorData != null ? profesorData.nombre : 'No existe aún'}"></span></p>
+            <p><strong>DNI:</strong> <span th:text="${profesorData != null ? profesorData.dni : 'No existe aún'}"></span></p>
         </div>
 
         <h3>Cursos que dicta</h3>
         <table class="tabla-profesor-cursos">
             <thead>
-                <tr>
-                    <th>Nombre del Curso</th>
-                    <th>Grado</th>
-                    <th>Sección</th>
-                </tr>
+                <tr><th>Curso</th><th>Grado</th><th>Sección</th></tr>
             </thead>
             <tbody>
                 <tr th:each="curso : ${profesorData.cursos}">
-                    <td th:text="${curso.nombre}">[Nombre del Curso]</td>
-                    <td th:text="${curso.grado}">[Grado del Curso]</td>
-                    <td th:text="${curso.seccion}">[Sección del Curso]</td>
+                    <td th:text="${curso.nombre}">Curso</td>
+                    <td th:text="${curso.grado}">Grado</td>
+                    <td th:text="${curso.seccion}">Sección</td>
                 </tr>
-                <tr th:if="${profesorData.cursos == null or #lists.isEmpty(profesorData.cursos)}">
-                    <td colspan="3">No hay cursos asignados.</td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-
-    <!-- Gestión de notas por curso-->
-    <div class="notas-cursos">
-        <h2>Gestión de Notas - Curso: <span th:text="${cursoMedioambiente.nombre}">Medioambiente</span></h2>
-        <p class="course-details">
-            <strong>Grado:</strong> <span th:text="${cursoMedioambiente.grado}">[Grado del Curso]</span> | 
-            <strong>Sección:</strong> <span th:text="${cursoMedioambiente.seccion}">[Sección del Curso]</span>
-        </p>
-
-        <table class="students-grades-table">
-            <thead>
-                <tr>
-                    <th>DNI Alumno</th>
-                    <th>Nombre Alumno</th>
-                    <th>Nota</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody id="tablaAlumnosMedioambiente">
-                <tr th:each="alumno : ${cursoMedioambiente.alumnos}">
-                    <td th:text="${alumno.dni}">[DNI Alumno]</td>
-                    <td th:text="${alumno.nombre}">[Nombre Alumno]</td>
-                    <td th:text="${alumno.nota}" th:id="'nota-' + ${alumno.id}">[Nota]</td>
-                    <td>
-                        <button class="btn-action edit-grade-btn" 
-                                onclick="abrirModalEditarNota(this)"
-                                th:data-alumno-id="${alumno.id}"
-                                th:data-alumno-dni="${alumno.dni}"
-                                th:data-alumno-nombre="${alumno.nombre}"
-                                th:data-alumno-nota="${alumno.nota}">
-                            Editar Nota
-                        </button>
-                    </td>
-                </tr>
-                <tr th:if="${cursoMedioambiente.alumnos == null or #lists.isEmpty(cursoMedioambiente.alumnos)}">
-                    <td colspan="4">No hay alumnos asignados a este curso.</td>
+                <tr th:if="${#lists.isEmpty(profesorData.cursos)}">
+                    <td colspan="3">No hay cursos asignados aún.</td>
                 </tr>
             </tbody>
         </table>
+    </section>
+
+    <!-- Tabla del curso asignado -->
+<section class="curso-asignado">
+    <h3>Curso: Comunicación - 2° Primaria B</h3>
+    <table class="tabla-curso">
+        <thead>
+            <tr>
+                <th>DNI</th>
+                <th>Nombre</th>
+                <th>Promedio</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody id="tabla-alumnos">
+            <tr>
+                <td>18238125</td>
+                <td>Pablito</td>
+                <td id="prom-1">15</td>
+                <td><button onclick="abrirModal(1, '12345678', 'Juan Pérez', 14, 15, 16)">Editar Nota</button></td>
+            </tr>
+            
+        </tbody>
+    </table>
+</section>
+
+<!-- Modal para editar notas -->
+<div id="modal" class="modal" style="display:none;">
+    <div class="modal-contenido">
+        <h3>Editar Notas</h3>
+        <p><strong>DNI:</strong> <span id="dni-modal"></span></p>
+        <p><strong>Alumno:</strong> <span id="nombre-modal"></span></p>
+
+        <label>Práctica 1: <input type="number" id="p1"></label><br>
+        <label>Práctica 2: <input type="number" id="p2"></label><br>
+        <label>Práctica 3: <input type="number" id="p3"></label><br>
+        <label>Promedio: <input type="number" id="promedio" readonly></label><br><br>
+
+        <button onclick="guardarNotas()">Guardar</button>
+        <button onclick="cerrarModal()">Cancelar</button>
     </div>
-    <!-- Modal para editar nota del elumno -->
-    <div class="modal" id="modalEditarNota">
-        <div class="modal-content">
-            <span class="close-modal" onclick="cerrarModal('modalEditarNota')">&times;</span>
-            <h3>Editar Nota</h3>
-            <input type="hidden" id="editarNotaAlumnoId">
-            <p class="modal-alumno-info"><strong>Alumno:</strong> <span id="editarNotaAlumnoNombre"></span> (<span id="editarNotaAlumnoDni"></span>)</p>
-            <label for="nuevaNota">Nueva Nota:</label>
-            <input type="number" id="nuevaNota" min="0" max="20" step="0.5" placeholder="Ingrese la nueva nota (0-20)">
-            <div class="modal-actions">
-                <button class="btn-action save-grade-btn" onclick="guardarNuevaNota()">Guardar Nota</button>
-            </div>
-        </div>
-    </div>
+</div>
 
-    <!-- Script para la lógica de los modales y la actualización de notas -->
-    <script>
-        // Referencias a elementos del DOM para el modal de edición de nota
-        const modalEditarNota = document.getElementById('modalEditarNota');
-        const editarNotaAlumnoIdInput = document.getElementById('editarNotaAlumnoId');
-        const editarNotaAlumnoNombreSpan = document.getElementById('editarNotaAlumnoNombre');
-        const editarNotaAlumnoDniSpan = document.getElementById('editarNotaAlumnoDni');
-        const nuevaNotaInput = document.getElementById('nuevaNota');
+<style>
+    .modal {
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.5); display: flex;
+        justify-content: center; align-items: center;
+    }
+    .modal-contenido {
+        background: white; padding: 20px; border-radius: 10px;
+        width: 300px;
+    }
+    input[type=number] { width: 100%; margin-bottom: 10px; }
+</style>
 
-        /*Abre el modal para editar la nota de un alumno*/
-        function abrirModalEditarNota(buttonElement) {
-            const id = buttonElement.dataset.alumnoId;
-            const dni = buttonElement.dataset.alumnoDni;
-            const nombre = buttonElement.dataset.alumnoNombre;
-            const notaActual = buttonElement.dataset.alumnoNota;
+<script>
+    let alumnoActualId = null;
 
-            editarNotaAlumnoIdInput.value = id;
-            editarNotaAlumnoNombreSpan.textContent = nombre;
-            editarNotaAlumnoDniSpan.textContent = dni;
-            nuevaNotaInput.value = notaActual;
-            modalEditarNota.style.display = 'block';
-        }
-        /*Cierra el modal de edición de nota*/
-        function cerrarModal(idModal) {
-            document.getElementById(idModal).style.display = 'none';
-        }
+    function abrirModal(id, dni, nombre, p1, p2, p3) {
+        alumnoActualId = id;
+        document.getElementById('dni-modal').textContent = dni;
+        document.getElementById('nombre-modal').textContent = nombre;
+        document.getElementById('p1').value = p1;
+        document.getElementById('p2').value = p2;
+        document.getElementById('p3').value = p3;
+        calcularPromedio();
 
-        /*Guarda la nueva nota del alumno*/
-        function guardarNuevaNota() {
-            const alumnoId = editarNotaAlumnoIdInput.value;
-            const nuevaNota = parseFloat(nuevaNotaInput.value);
+        document.getElementById('modal').style.display = 'flex';
+    }
 
-            if (isNaN(nuevaNota) || nuevaNota < 0 || nuevaNota > 20) {
-                console.warn('Por favor, ingrese una nota válida entre 0 y 20.');
-                return;
-            }
+    function cerrarModal() {
+        document.getElementById('modal').style.display = 'none';
+    }
 
-            // SIMULACIÓN (eliminar cuando implementes el backend real)
-            console.log(`Simulando: Nota del alumno ID ${alumnoId} actualizada a ${nuevaNota}.`);
-            const notaElement = document.getElementById('nota-' + alumnoId);
-            if (notaElement) {
-                notaElement.textContent = nuevaNota;
-            } else {
-                console.error(`Elemento con ID 'nota-${alumnoId}' no encontrado.`);
-            }
-            cerrarModal('modalEditarNota');
-        }
-    </script>
+    function calcularPromedio() {
+        const n1 = parseFloat(document.getElementById('p1').value) || 0;
+        const n2 = parseFloat(document.getElementById('p2').value) || 0;
+        const n3 = parseFloat(document.getElementById('p3').value) || 0;
+        const promedio = Math.round((n1 + n2 + n3) / 3);
+        document.getElementById('promedio').value = promedio;
+    }
+
+    document.getElementById('p1').addEventListener('input', calcularPromedio);
+    document.getElementById('p2').addEventListener('input', calcularPromedio);
+    document.getElementById('p3').addEventListener('input', calcularPromedio);
+
+    function guardarNotas() {
+        const nuevoProm = document.getElementById('promedio').value;
+        document.getElementById(`prom-${alumnoActualId}`).textContent = nuevoProm;
+        cerrarModal();
+    }
+</script>
 </body>
 </html>

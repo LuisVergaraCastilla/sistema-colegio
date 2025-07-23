@@ -4,12 +4,54 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inicio Alumno</title>
-    <link rel="stylesheet" href="/css/estilos.css">
+    <link rel="stylesheet" href="/css/usuarios.css">
 </head>
 <body>
+    <!-- Navbar -->
+    <div class="navbar">
+        <img src="/img/img-login.png" alt="Logo Colegio">
+        <h1 class="navbar-title">Bienvenido Alumno</h1>
+        <a href="/logout" class="btn logout-btn">Cerrar Sesión</a>
+    </div>
     <div style="text-align: center; margin-top: 50px;">
         <h1 th:text="'Bienvenido ' + ${usuario.rol} + ' ' + ${usuario.nombre}">Bienvenido</h1>
         <p>Has iniciado sesión correctamente como alumno.</p>
     </div>
+
+    <!-- Datos del alumno -->
+    <section class="alumno-datos">
+        <h2>Datos Personales</h2>
+        <div class="info-grid">
+            <p><strong>Nombre:</strong> <span>Pablito</span></p>
+            <p><strong>DNI:</strong> <span>87645312</span></p>
+            <p><strong>Grado:</strong> <span>2° Primaria</span></p>
+            <p><strong>Sección:</strong> <span>B</span></p>
+        </div>
+    </section>
+
+    <!-- Tabla de notas -->
+    <section class="alumno-notas">
+        <h2>Mis Cursos y Notas</h2>
+        <table class="tabla-notas">
+            <thead>
+                <tr>
+                    <th>Curso</th>
+                    <th>Práctica 1</th>
+                    <th>Práctica 2</th>
+                    <th>Práctica 3</th>
+                    <th>Promedio</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Comunicación</td>
+                    <td>14</td>
+                    <td>15</td>
+                    <td>16</td>
+                    <td>15</td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
 </body>
 </html>

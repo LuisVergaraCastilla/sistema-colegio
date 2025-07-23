@@ -1,9 +1,6 @@
 package com.colegio.sistema.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
@@ -13,5 +10,9 @@ public class AlumnoNotaCurso {
     private Long id;
     private String dni;
     private String nombre;
-    private Double nota;
+
+    private Double practica1;
+    private Double practica2;
+    private Double practica3;
+    private Double promedio;
 }
